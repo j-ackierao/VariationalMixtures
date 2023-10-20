@@ -64,7 +64,7 @@ ELBOCalc <- function(X, model, prior){
   sumDElogphi <- array(0, c(N, K)) #nxK matrix of sum of E(log phi) over i = 1, ..., D, used in calculation of first expression
   for (n in 1:N){
     for (k in 1:K){
-      sumDElogphi[n, k] <- sum(Elogphi[k, 1:D, N])
+      sumDElogphi[n, k] <- sum(Elogphi[k, 1:D, n])
     }
   }
   
@@ -88,7 +88,7 @@ ELBOCalc <- function(X, model, prior){
     for (l in 1:maxNCat){
       for (i in 1:D){
         if (eps[k, l, i] != 0){
-          epsminusone[k,l,i] = prioreps[k,l,i] - 1
+          epsminusone[k,l,i] = eps[k,l,i] - 1
         }
         else{
           epsminusone[k,l,i] == 0
@@ -97,11 +97,11 @@ ELBOCalc <- function(X, model, prior){
     }
   }
   
-  matExp1 <- rnk + sumDElogphi
+  matExp1 <- rnk * sumDElogphi
   
   Exp1 <- sum(matExp1) #E(logp(X|Z,phi))
   
-  matExp2 <- rnk + matrix(rep(t(alpha),each=N), nrow = N)
+  matExp2 <- rnk * matrix(rep(Elogpi,N), ncol = K, byrow = TRUE)
   
   Exp2 <- sum(matExp2) #E(logp(Z|pi))
   
