@@ -42,6 +42,13 @@ expectStep <- function(X, model){
     }
   }
   
+  #Check this bit! is the k with the highest responsibility the cluster that zn is assigned to?
+  
+  labels <- apply(rnk, 1, which.max)
+  
   model$rnk <- rnk #update responsibilities in model
+  model$labels <- labels #update labels in model
+
   return(model)
+
 }
