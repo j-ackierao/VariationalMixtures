@@ -9,7 +9,7 @@ expectStep <- function(X, model){
   
   N = dim(X)[1]
   D = dim(X)[2]
-  K = length(alpha)
+  K = K
   nCat <- as.vector(apply(X, 2, max)) #number of categories in each variable
   maxNCat <- max(nCat)
   

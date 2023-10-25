@@ -13,7 +13,7 @@ ELBOCalc <- function(X, model, prior){
   
   N = dim(X)[1]
   D = dim(X)[2]
-  K = length(alpha)
+  K = length(model$alpha)
   nCat <- as.vector(apply(X, 2, max)) #number of categories in each variable
   maxNCat <- max(nCat)
   
@@ -105,7 +105,7 @@ ELBOCalc <- function(X, model, prior){
   
   Exp2 <- sum(matExp2) #E(logp(Z|pi))
   
-  Exp3 <- sum((prioralpha - 1)*Elogpi) + Cprioralpha #E(logp(pi)), sum will sum over all k
+  Exp3 <- sum((prioralpha - 1)*Elogpi) + Cprioralpha #E(logp(pi)), sum will sum over all k. CHECKED
   
   Exp4 <- sum((priorepsminusone)*ElogphiL) + sum(Cprioreps) #E(logp(phi)) I think this is correct but double check ElogphiL
   

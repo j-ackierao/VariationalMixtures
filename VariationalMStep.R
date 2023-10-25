@@ -13,7 +13,7 @@ maxStep <- function(X, model, prior){
   nCat <- as.vector(apply(X, 2, max)) #number of categories in each variable
   maxNCat <- max(nCat)
   
-  #Parameters for pi update - Dirichlet (just need to update parameters, don't need full dist at this point)
+  #Parameters for pi update - Dirichlet (just need to update parameters)
   alpha <- prioralpha + colSums(rnk)
   
   #Parameters for phi update - Dirichlet
@@ -26,7 +26,7 @@ maxStep <- function(X, model, prior){
     }
   }
   
-  model$alpha <- alpha
-  model$eps <- eps
+  model$alpha <- alpha #update alpha* in model
+  model$eps <- eps #update epsilon* in model
   return(model)
 }

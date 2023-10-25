@@ -1,6 +1,20 @@
 #Variational mixtures for categorical distributions
+check_convergence<- function(ELBO, iter, maxiter, tol){
+  if (iter > 1 && abs(ELBO[iter * 2] - ELBO[iter * 2-1]) < tol && abs(ELBO[iter * 2-1] - ELBO[iter * 2-2] < tol) && 
+      abs(ELBO[iter * 2-2] - ELBO[iter * 2-3] < tol)){
+    print(paste("Stopped after iteration ",iter)) #make sure the last 3 ELBOs close to each other
+    return(TRUE)
+  }
+  if (iter == maxiter){
+    print(paste("Not converged after maximum number of iterations"))
+    return(TRUE)
+  }
+  else{
+    return(FALSE)
+  }
+}
 
-mixturemodel <- function(X, K, alpha, maxiter){
+mixturemodel <- function(X, K, alpha, maxiter, tol){
   
   ################################################
   #Process dataset - use inspiration from vimix and mixdir codes
@@ -14,7 +28,7 @@ mixturemodel <- function(X, K, alpha, maxiter){
   factor_labels = data.frame()
   for (i in 1:length(colnames(X))){
     factorlist <- data.frame(factors = unique(X[,i]), value = as.numeric(unique(X[,i])))
-    factordict <- cbind(variable = colnames(X)[1], factorlist)
+    factordict <- cbind(data.frame(variable = colnames(X)[i]), factorlist)
     factor_labels <- rbind(factor_labels, factordict)
   }
   
@@ -31,7 +45,6 @@ mixturemodel <- function(X, K, alpha, maxiter){
   X <- data.matrix(X)
   #note that now eg. binary factors are now 1 and 2 instead of 0 and 1
   
-  
   ##########################################
   
   N = dim(X)[1]
@@ -39,17 +52,15 @@ mixturemodel <- function(X, K, alpha, maxiter){
   
   nCat <- as.vector(apply(X, 2, max)) #number of categories in each variable
   maxNCat <- max(nCat)
-  L = Cl = rep(-Inf,maxiter*2) #prepare for L (ELBO) and number of clusters at each iteration to be recorded
+  ELBO = Cl = rep(-Inf,maxiter*2) #prepare for L (ELBO) and number of clusters at each iteration to be recorded
   
   ########################################
   #Define priors
-  #Assume there is an input alpha and all variables have a symmetric Dirichlet prior with parameters alpha/Li where
-  #there are Li different potential categories for variable i
+  #Assume there is an input alpha and all variables have a symmetric Dirichlet prior with parameters alpha
+  #Could edit this later to have alpha being different across different clusters
   
-  #Prior for parameters in each cluster
-  
-  prior = list(alpha = 1/K) #default value of alpha - prior for clustering pi
-  prior$eps = matrix(0, D, maxNCat) #prior for clustering phi. Eps stands for epsilon 
+  prior = list(alpha = alpha) #default value of alpha - prior for clustering pi
+  prior$eps = matrix(0, D, maxNCat) #prior for clustering phi
   for(d in 1:D){
     prior$eps [d,1:nCat[d]] <- 1/nCat[d]
   }
@@ -79,44 +90,45 @@ mixturemodel <- function(X, K, alpha, maxiter){
       }
     }
   }
-  #I think this tries to update the epsilons based on the initial cluster assignment, based on how many observations are in each 
+  #Update the epsilons based on the initial cluster assignment, based on how many observations are in each 
   #cluster with a given variable value - breaks symmetries between clusters as all priors are symmetric 
-  #Look more into why this is the calculation done
+  #Similar to our usual phi (epsilon) update based on initial cluster assignments (rnk = 1 if n is in cluster k)
   
   ########################################
   
-  #Define ELBO calculation
-  
-  #Initialise model
-  
-  #Set function to iterate between E and M and calculate ELBO between each iteration (after E and after M)
-  #Record these in a little list
-  #Also record number of clusters each time
-  
-  check_convergence<- function(L){L + 1
-    }
-  
+
   for (iter in 1:maxiter){
     print(paste("Iteration number ",iter))
     model = expectStep(X, model) #Expectation step
     ELBO[iter * 2-1] = ELBOCalc(X, model, prior) #ELBO
     print(ELBO[iter * 2-1])
-    if(iter > 1 && ELBO[iter * 2-1] < ELBO[iter * 2-2]){
-      print("SOMETHING WENT WRONG")
-    }
+
     Cl[iter] = length(unique(model$labels)) #Counts number of non-empty clusters
     model = maxStep(X, model, prior) #Maximisation step
     ELBO[iter * 2] = ELBOCalc(X, model, prior) #ELBO
     print(ELBO[iter * 2])
-    if(ELBO[iter * 2] < ELBO[iter * 2-1]){
-      print("SOMETHING WENT WRONG")
-    }
+
     Cl[iter] = length(unique(model$labels)) #Counts number of non-empty clusters
     
-    #if(check_convergence(L)) break
+    if(check_convergence(ELBO, iter, maxiter, tol)) break
+    
   }
   
-  #Define how to check for convergence
+  output <- list(ELBO = ELBO[1:(iter*2)], Cl = Cl[1:iter], model = model, factor_labels = factor_labels)
+  return(output)
   
 }
+
+#Output gives you ELBO (list of monotonically increasing values of the lower bound at each iteration),
+#Cl (number of non-empty clusters at each iteration), and model (final parameter values and cluster labels)
+
+vidataMatrix <- mixturemodel(X, K, alpha, maxiter, tol)
+
+#Plot ELBO
+plot(1:length(vidataMatrix$ELBO), vidataMatrix$ELBO, type = 'l', xlab = 'iteration', ylab = 'ELBO')
+
+#Taking out first iteration (Huge increase in ELBO between iteration 1 and 2)
+plot(2:length(vidataMatrix$ELBO), vidataMatrix$ELBO[2:length(vidataMatrix$ELBO)], type = 'l', xlab = 'iteration', ylab = 'ELBO')
+
+
 
