@@ -69,7 +69,6 @@ mixturemodelvarsel <- function(data, K, alpha, a, maxiter, tol){
   ########################################
   #Define priors
   #Assume there is an input alpha and all variables have a symmetric Dirichlet prior with parameters alpha
-  #Could edit this later to have alpha being different across different clusters
   
   prior = list(alpha = alpha) #default value of alpha - prior for clustering pi
   prior$eps = matrix(0, D, maxNCat) #prior for clustering phi
@@ -89,7 +88,7 @@ mixturemodelvarsel <- function(data, K, alpha, a, maxiter, tol){
   #maxNCat columns (parameter for each category in the variable, all unused are 0)
   model = list(alpha = rep(prior$alpha, K),
                eps = EPSreshape[rep(1,K),,],
-               c = rep(1, D), #initialise c_i: 'equal chance' of variable i being relevant/irrelavent
+               c = rep(1, D), #initialise c_i - all variables initially included
                labels = clusterInit) #current parameters for alpha, epsilon: makes D arrays
   #ie. array for each variable, each array has a row for each cluster and a column for each category
   #each array represents phi_ki k*max(Li) number of columns and rows, zeroes to stand for categories unused

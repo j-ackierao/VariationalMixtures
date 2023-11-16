@@ -66,7 +66,7 @@ ELBOCalcVarSel <- function(X, model, prior){
       Cposteps[k, i] <- lgamma(sum(eps[k, 1:varCat, i])) - sum(lgamma(eps[k, 1:varCat, i]))
     }
   }
-  Cpriordelta <- lgamma(a + a) - sum(lgamma(a))
+  Cpriordelta <- lgamma(a + a) - 2 * lgamma(a)
   Cpostdelta <- c()
   for (i in 1:D){
     Cpostdelta[i] <- lgamma(1 + 2*a) - lgamma(c[i] + a) - lgamma(1 - c[i] + a)

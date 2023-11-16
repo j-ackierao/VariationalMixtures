@@ -1,3 +1,10 @@
+library(klaR)
+library(tidyverse)
+source('VariationalEStep.R')
+source('VariationalMStep.R')
+source('ELBOCalc.R')
+
+
 #Variational mixtures for categorical distributions
 check_convergence<- function(ELBO, iter, maxiter, tol){
   if (iter > 1 && abs(ELBO[iter * 2] - ELBO[iter * 2-1]) < tol && abs(ELBO[iter * 2-1] - ELBO[iter * 2-2] < tol) && 
@@ -14,13 +21,13 @@ check_convergence<- function(ELBO, iter, maxiter, tol){
   }
 }
 
-mixturemodel <- function(X, K, alpha, maxiter, tol){
+mixturemodel <- function(data, K, alpha, maxiter, tol){
   
   ################################################
   #Process dataset - use inspiration from vimix and mixdir codes
   
-  #First make sure X is a data frame and make every column into factors
-  X <- as.data.frame(X)
+  #First make sure X (data) is a data frame and make every column into factors
+  X <- as.data.frame(data)
   X[colnames(X)] <- lapply(X[colnames(X)], as.factor)
   
   
@@ -57,7 +64,6 @@ mixturemodel <- function(X, K, alpha, maxiter, tol){
   ########################################
   #Define priors
   #Assume there is an input alpha and all variables have a symmetric Dirichlet prior with parameters alpha
-  #Could edit this later to have alpha being different across different clusters
   
   prior = list(alpha = alpha) #default value of alpha - prior for clustering pi
   prior$eps = matrix(0, D, maxNCat) #prior for clustering phi
@@ -100,6 +106,7 @@ mixturemodel <- function(X, K, alpha, maxiter, tol){
   for (iter in 1:maxiter){
     print(paste("Iteration number ",iter))
     model = expectStep(X, model) #Expectation step
+    .GlobalEnv$maxNCat <- maxNCat
     ELBO[iter * 2-1] = ELBOCalc(X, model, prior) #ELBO
     print(ELBO[iter * 2-1])
 
@@ -118,17 +125,5 @@ mixturemodel <- function(X, K, alpha, maxiter, tol){
   return(output)
   
 }
-
-#Output gives you ELBO (list of monotonically increasing values of the lower bound at each iteration),
-#Cl (number of non-empty clusters at each iteration), and model (final parameter values and cluster labels)
-
-vidataMatrix <- mixturemodel(X, K, alpha, maxiter, tol)
-
-#Plot ELBO
-plot(1:length(vidataMatrix$ELBO), vidataMatrix$ELBO, type = 'l', xlab = 'iteration', ylab = 'ELBO')
-
-#Taking out first iteration (Huge increase in ELBO between iteration 1 and 2)
-plot(2:length(vidataMatrix$ELBO), vidataMatrix$ELBO[2:length(vidataMatrix$ELBO)], type = 'l', xlab = 'iteration', ylab = 'ELBO')
-
 
 

@@ -9,7 +9,7 @@ expectStep <- function(X, model){
   
   N = dim(X)[1]
   D = dim(X)[2]
-  K = K
+  K = length(model$alpha)
   nCat <- as.vector(apply(X, 2, max)) #number of categories in each variable
   maxNCat <- max(nCat)
   
@@ -25,7 +25,7 @@ expectStep <- function(X, model){
       }
     }
   }
-
+  
   logrhonk <- array(0, c(N, K)) #calculate log rho_nk
   for (n in 1:N){
     for (k in 1:K){

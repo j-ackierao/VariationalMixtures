@@ -1,7 +1,12 @@
 #ELBO calculation function
 
 ELBOCalc <- function(X, model, prior){
+  N = dim(X)[1]
+  D = dim(X)[2]
+  K = length(model$alpha)
   
+  EPSreshape = t(prior$eps) 
+  dim(EPSreshape) = c(1,maxNCat,D)
   prior2 = list(alpha = rep(prior$alpha, K),
                eps = EPSreshape[rep(1,K),,])
   prioralpha <- prior2$alpha
@@ -11,9 +16,6 @@ ELBOCalc <- function(X, model, prior){
   eps <- model$eps
   rnk <- model$rnk
   
-  N = dim(X)[1]
-  D = dim(X)[2]
-  K = length(model$alpha)
   nCat <- as.vector(apply(X, 2, max)) #number of categories in each variable
   maxNCat <- max(nCat)
   

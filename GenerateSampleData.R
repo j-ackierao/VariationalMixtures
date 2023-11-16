@@ -1,9 +1,6 @@
 #Generate example binary clustered data
 
-library(pheatmap)
-library(RColorBrewer)
-
-set.seed(463)
+set.seed(4653)
 
 #Example settings for parameters in function
 n    <- 1000 # The overall population size
@@ -59,9 +56,11 @@ GenerateSampleData <- function(n, K, w, p, Irrp, yout = FALSE){
     y <- vector(mode = "numeric", length = n)
     yParams <- vector(mode = "numeric", length = K) 
     
-    prob <- runif(1)
+    prob1 <- runif(1, 1, 10)
+    prob2 <- runif(1, 1, 10)
     for (k in 1:K){
-      yParams[k] <- rbeta(1, prob, prob) #generate random Beta probability
+      yParams[k] <- rbeta(1, prob1, prob2) #generate random Beta probability
+      #prob1 and prob2 can be manually specified instead
     }
     
     for (i in 1:n){
@@ -95,46 +94,4 @@ GenerateSampleData <- function(n, K, w, p, Irrp, yout = FALSE){
   }
   }
 
-######Visualising our simulated data
-
-#If binary outcome is present:
-annotationRow <- cbind(outcome = dataMatrix[[3]], Clusters = dataMatrix[[2]])
-annotationColor <- list(
-  outcome  = c("0" = "white", "1" = "black"),
-  Clusters = c("1" = "#1B9E77", "2" = "#D95F02", "3" = "#7570B3", "4" = "#E7298A")
-)
-
-
-pheatmap(dataMatrix[[1]], show_rownames = F, annotation_row = annotationRow, 
-         color = colorRampPalette(colors = c("white", "black"))(2), 
-         annotation_colors = annotationColor,
-         cluster_rows = F, cluster_cols = F)
-pheatmap(dataMatrix[[1]][sort(as.numeric(dataMatrix[[2]]$Cluster), index.return = T)$ix,], 
-         show_rownames = F, annotation_row = annotationRow, 
-         annotation_colors = annotationColor,
-         color = colorRampPalette(colors = c("white", "black"))(2),
-         cluster_rows = F)
-
-#If binary outcome is not present
-pheatmap(dataMatrix[[1]], show_rownames = F, annotation_row = dataMatrix[[2]], 
-         color = colorRampPalette(colors = c("white", "black"))(2), 
-         cluster_rows = F, cluster_cols = F)
-pheatmap(dataMatrix[[1]][sort(as.numeric(dataMatrix[[2]]$Cluster), index.return = T)$ix,], 
-         show_rownames = F, annotation_row = dataMatrix[[2]], 
-         color = colorRampPalette(colors = c("white", "black"))(2),
-         cluster_rows = F)
-
-#Visualising with outcome
-
-#Run this after fitting model 
-
-currentAnnotationRow <- data.frame(
-  Cluster = factor(vidataMatrix$model$labels),
-  trueClusters = factor(dataMatrix[[2]]$Cluster)
-)
-rownames(currentAnnotationRow) <- rownames(dataMatrix[[1]]) 
-pheatmap(dataMatrix[[1]][sort(vidataMatrix$model$labels, index.return = T)$ix,], 
-         cluster_rows = F, show_rownames = F, show_colnames = F, 
-         color = colorRampPalette(colors = c("white", "black"))(2),
-         annotation_row = currentAnnotationRow)
 
