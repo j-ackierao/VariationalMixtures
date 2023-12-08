@@ -17,14 +17,7 @@ maxStep <- function(X, model, prior){
   alpha <- prioralpha + colSums(rnk)
   
   #Parameters for phi update - Dirichlet
-  eps <- array(0, dim = c(K, maxNCat, D))
-  for(k in 1:K){
-    for(i in 1:D){
-      for (l in 1:maxNCat){
-        eps[k, l, i] <- prioreps[i, l] + sum((X[,i] == l)*rnk[,k])
-      }
-    }
-  }
+  eps <- epsCalc(K, maxNCat, D, N, prioreps, X, rnk)
   
   model$alpha <- alpha #update alpha* in model
   model$eps <- eps #update epsilon* in model

@@ -1,10 +1,11 @@
-#Variational M Step
+#Variational M Step - profile regression w/categorical response
 
-maxStepVarSel <- function(X, model, prior){
-  #Model should contain all current parameters I assume? parameters alpha, epsilon, rnk, labels
+maxStepProfCat <- function(X, y, model, prior){
+  #Model should contain all current parameters
   #Need prior in this step as parameters from priors appear in the optimisation equations
   prioralpha <- prior$alpha
   prioreps <- prior$eps
+  priorbeta <- prior$beta
   a <- prior$a
   
   rnk <- model$rnk
@@ -14,14 +15,16 @@ maxStepVarSel <- function(X, model, prior){
   N = dim(X)[1]
   D = dim(X)[2]
   K = length(model$alpha)
+  J = dim(model$beta)[2]
   nCat <- as.vector(apply(X, 2, max)) #number of categories in each variable
   maxNCat <- max(nCat)
   
   #Parameters for pi update - Dirichlet (just need to update parameters)
   alpha <- prioralpha + colSums(rnk)
   
-  #Parameters for phi update - Dirichlet
+  #Parameters for phi and theta update - Dirichlet
   eps <- epsCalcVarSel(K, maxNCat, D, N, prioreps, X, rnk, c)
+  beta <- betaCalc(priorbeta, y, K, J, N, rnk)
   
   #First calculate c_i
   Elogphi <- ElogphiCalc(eps, K, D, N, maxNCat, X)
@@ -39,5 +42,6 @@ maxStepVarSel <- function(X, model, prior){
   model$alpha <- alpha #update alpha* in model
   model$eps <- eps #update epsilon* in model
   model$c <- c #update c in model
+  model$beta <- beta #update beta* in model
   return(model)
 }

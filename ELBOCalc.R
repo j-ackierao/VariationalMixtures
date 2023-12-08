@@ -20,84 +20,24 @@ ELBOCalc <- function(X, model, prior){
   maxNCat <- max(nCat)
   
   Elogpi <- digamma(alpha) - digamma(sum(alpha)) #Taken from E step
-  Elogphi <- array(0, c(K, D, N))
-  #Make an array 
-  for (n in 1:N){
-    for (i in 1:D){
-      for (k in 1:K){
-        Elogphi[k,i, n] <- digamma(eps[k, X[n,i], i]) - digamma(sum(eps[k, 1:maxNCat, i])) #last term sum over Li variables
-      }
-    }
-  }
-  
-  ElogphiL <- array(0, c(K, maxNCat, D))
-  #Make an array 
-  for (i in 1:D){
-    varCat <- nCat[i]
-    for (l in 1:varCat){
-      for (k in 1:K){
-        ElogphiL[k,l, i] <- digamma(eps[k, l, i]) - digamma(sum(eps[k, 1:maxNCat, i])) #last term sum over Li variables
-      }
-    }
-  }
+  Elogphi <- ElogphiCalc(eps, K, D, N, maxNCat, X)
+  ElogphiL <- ElogphiLCalc(eps, K, D, maxNCat, nCat)
   
   #(log) normalising constants of Dirichlet
   Cprioralpha <- lgamma(sum(prioralpha)) - sum(lgamma(prioralpha))
   Cpostalpha <- lgamma(sum(alpha)) - sum(lgamma(alpha))
   #K X D matrix for epsilon constants as thats how many phi priors (and posteriors) we have, all dim L (no ofcategories)
   #NEED TO MAKE SURE ZEROES ARE NOW IGNORED
-  Cprioreps <- array(0, c(K, D))
-  for (k in 1:K){
-    for (i in 1:D){
-      varCat <- nCat[i]
-      Cprioreps[k, i] <- lgamma(sum(prioreps[k, 1:varCat, i])) - sum(lgamma(prioreps[k, 1:varCat, i]))
-    }
-  }
-  Cposteps <- array(0, c(K, D))
-  for (k in 1:K){
-    for (i in 1:D){
-      varCat <- nCat[i]
-      Cposteps[k, i] <- lgamma(sum(eps[k, 1:varCat, i])) - sum(lgamma(eps[k, 1:varCat, i]))
-    }
-  }
+  Cprioreps <- CpriorepsCalc(prioreps, K, D, nCat)
+  Cposteps <- CpostepsCalc(eps, K, D, nCat)
     
   #Calculations
   
-  sumDElogphi <- array(0, c(N, K)) #nxK matrix of sum of E(log phi) over i = 1, ..., D, used in calculation of first expression
-  for (n in 1:N){
-    for (k in 1:K){
-      sumDElogphi[n, k] <- sum(Elogphi[k, 1:D, n])
-    }
-  }
+  sumDElogphi <- sumDElogphiCalc(Elogphi, K, D, N) #nxK matrix of sum of E(log phi) over i = 1, ..., D, used in calculation of first expression
   
   #Matrix of epsilon parameters -1, where all 0's remain 0 (as these are unused parameters)
-  priorepsminusone <- array(0, c(K, maxNCat, D))
-  for (k in 1:K){
-    for (l in 1:maxNCat){
-      for (i in 1:D){
-        if (prioreps[k, l, i] != 0){
-          priorepsminusone[k,l,i] = prioreps[k,l,i] - 1
-        }
-        else{
-          priorepsminusone[k,l,i] == 0
-        }
-      }
-    }
-  }
-  
-  epsminusone <- array(0, c(K, maxNCat, D))
-  for (k in 1:K){
-    for (l in 1:maxNCat){
-      for (i in 1:D){
-        if (eps[k, l, i] != 0){
-          epsminusone[k,l,i] = eps[k,l,i] - 1
-        }
-        else{
-          epsminusone[k,l,i] == 0
-        }
-      }
-    }
-  }
+  priorepsminusone <- priorepsminusoneCalc(prioreps, K, D, maxNCat)
+  epsminusone <- epsminusoneCalc(eps, K, D, maxNCat)
   
   matExp1 <- rnk * sumDElogphi
   

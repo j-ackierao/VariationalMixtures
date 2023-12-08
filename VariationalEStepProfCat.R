@@ -1,6 +1,6 @@
-#Variational E step - model selection
+#Variational E step - profile regression w/ categorical response
 
-expectStepVarSel <- function(X, model){
+expectStepProfCat <- function(X, y, model){
   #Model should contain all current parameters: parameters alpha, epsilon, c, labels
   #Add parameter rnk (responsibilities) in this step; this is the first step before maximisation
   
@@ -8,22 +8,25 @@ expectStepVarSel <- function(X, model){
   eps <- model$eps
   c <- model$c
   nullphi <- model$nullphi
+  beta <- model$beta
   
   N = dim(X)[1]
   D = dim(X)[2]
   K = length(model$alpha)
+  J = dim(beta)[2]
   nCat <- as.vector(apply(X, 2, max)) #number of categories in each variable
   maxNCat <- max(nCat)
   
   Elogpi <- digamma(alpha) - digamma(sum(alpha)) #k dim vector, expectation of log pi k
-  
   Elogphi <- ElogphiCalc(eps, K, D, N, maxNCat, X)
+  Elogtheta <- ElogthetaCalcCat(beta, K, J)
   
   carray <- replicate(N, matrix(rep(c, K), ncol = D, byrow = TRUE), simplify="array") * Elogphi
   #array of c_i * Elogphi
-  cmatrix <- cmatrixCalc(nullphi, X, c, N, D) #1 - c_i * phi_0ixni
+  cmatrix <- cmatrixCalc(nullphi, X, c, N, D)
   
-  rhonk <- rhonkCalcVarSel(Elogpi, carray, cmatrix, K, D, N) #calculate rho_nk
+  rhonk <- rhonkCalcProfCat(Elogpi, Elogtheta, y, carray, cmatrix, K, D, N)
+  
   rnk <- rnkCalc(rhonk, N, K)
   
   #Check this bit! is the k with the highest responsibility the cluster that zn is assigned to?
@@ -35,5 +38,5 @@ expectStepVarSel <- function(X, model){
   
   return(model)
   
-
+  
 }

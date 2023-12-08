@@ -4,6 +4,11 @@ source('VariationalEStepVarSel.R')
 source('VariationalMStepVarSel.R')
 source('ELBOCalcVarSel.R')
 
+library(Rcpp)
+library(RcppArmadillo)
+Rcpp::sourceCpp('VarSel.cpp')
+Rcpp::sourceCpp('VarSelArma.cpp')
+
 #Variational mixtures for categorical distributions with variable selection
 check_convergence<- function(ELBO, iter, maxiter, tol){
   if (iter > 1 && abs(ELBO[iter * 2] - ELBO[iter * 2-1]) < tol && abs(ELBO[iter * 2-1] - ELBO[iter * 2-2] < tol) && 
@@ -27,7 +32,6 @@ check_convergence<- function(ELBO, iter, maxiter, tol){
 #tol = convergence criteria
 
 mixturemodelvarsel <- function(data, K, alpha, a, maxiter, tol){
-  
   ################################################
   #Process dataset - use inspiration from vimix and mixdir codes
   
