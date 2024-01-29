@@ -51,7 +51,9 @@ ELBOCalc <- function(X, model, prior){
   
   Exp4 <- sum((priorepsminusone)*ElogphiL) + sum(Cprioreps) #E(logp(phi)) I think this is correct but double check ElogphiL
   
-  Exp5 <- sum(rnk * log(rnk)) #E(q(Z)) this should be correct - element-wise multiplication
+  logrnk <- log(rnk)
+  logrnk[logrnk == -Inf] <- 0
+  Exp5 <- sum(rnk * logrnk) #E(q(Z)) this should be correct - element-wise multiplication
   
   Exp6 <- sum((alpha - 1)*Elogpi) + Cpostalpha #E(logq(pi))
   

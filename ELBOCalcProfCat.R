@@ -78,7 +78,9 @@ ELBOCalcProfCat <- function(X, y, model, prior){
   
   Exp7 <- sum((priorbeta - 1) * Elogtheta) + sum(Cpriortheta) #Elogptheta DONE
   
-  Exp8 <- sum(rnk * log(rnk)) #E(q(Z)) #STAYS THE SAME
+  logrnk <- log(rnk)
+  logrnk[logrnk == -Inf] <- 0
+  Exp8 <- sum(rnk * logrnk) #E(q(Z)) #STAYS THE SAME
   
   Exp9 <- sum((alpha - 1)*Elogpi) + Cpostalpha #E(logq(pi)) #STAYS THE SAME
   

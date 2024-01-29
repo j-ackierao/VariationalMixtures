@@ -57,7 +57,7 @@ arma::vec CpostdeltaCalc(arma::vec c, double a, double D){
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-arma::mat rhonkCalcProfCat(arma::vec Elogpi, arma::mat Elogtheta, arma::vec y, arma::cube carray, arma::mat cmatrix, double K, double D, double N){
+arma::mat logrhonkCalcProfCat(arma::vec Elogpi, arma::mat Elogtheta, arma::vec y, arma::cube carray, arma::mat cmatrix, double K, double D, double N){
   arma::mat v(N, K);
   for (int n = 0; n < N; n++){
     for (int k = 0; k < K; k++){
@@ -69,7 +69,7 @@ arma::mat rhonkCalcProfCat(arma::vec Elogpi, arma::mat Elogtheta, arma::vec y, a
       for(int d = 0; d < D; d++){
         sum2 += cmatrix(n, d);
       }
-      v(n, k) = exp(Elogpi(k) + Elogtheta(k, y(n) - 1) + sum1 + sum2);
+      v(n, k) = Elogpi(k) + Elogtheta(k, y(n) - 1) + sum1 + sum2;
     }
   }
   return v;

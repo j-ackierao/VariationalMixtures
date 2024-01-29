@@ -67,7 +67,9 @@ ELBOCalcVarSel <- function(X, model, prior){
   
   Exp6 <- sum((a - 1) * Elogdelta + (a - 1) * Elogminusdelta + Cpriordelta) #E(logp(delta)) DONE
   
-  Exp7 <- sum(rnk * log(rnk)) #E(q(Z)) #STAYS THE SAME
+  logrnk <- log(rnk)
+  logrnk[logrnk == -Inf] <- 0
+  Exp7 <- sum(rnk * logrnk) #E(q(Z)) #STAYS THE SAME
   
   Exp8 <- sum((alpha - 1)*Elogpi) + Cpostalpha #E(logq(pi)) #STAYS THE SAME
   

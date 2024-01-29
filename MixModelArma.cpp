@@ -43,7 +43,7 @@ arma::cube ElogphiLCalc(arma::cube eps, double K, double D, double maxNCat, arma
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-arma::mat rhonkCalc(arma::vec Elogpi, arma::cube Elogphi, double K, double D, double N){
+arma::mat logrhonkCalc(arma::vec Elogpi, arma::cube Elogphi, double K, double D, double N){
   arma::mat v(N, K);
   for (int n = 0; n < N; n++){
     for (int k = 0; k < K; k++){
@@ -51,7 +51,7 @@ arma::mat rhonkCalc(arma::vec Elogpi, arma::cube Elogphi, double K, double D, do
       for(int d = 0; d < D; d++){
         sum += Elogphi(k, d, n);
       }
-      v(n, k) = exp(Elogpi(k) + sum);
+      v(n, k) = Elogpi(k) + sum;
     }
   }
   return v;

@@ -57,7 +57,7 @@ arma::cube lognullphiCalc(arma::mat nullphi, arma::mat X, double K, double D, do
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-arma::mat rhonkCalcVarSel(arma::vec Elogpi, arma::cube carray, arma::mat cmatrix, double K, double D, double N){
+arma::mat logrhonkCalcVarSel(arma::vec Elogpi, arma::cube carray, arma::mat cmatrix, double K, double D, double N){
   arma::mat v(N, K);
   for (int n = 0; n < N; n++){
     for (int k = 0; k < K; k++){
@@ -69,7 +69,7 @@ arma::mat rhonkCalcVarSel(arma::vec Elogpi, arma::cube carray, arma::mat cmatrix
       for(int d = 0; d < D; d++){
         sum2 += cmatrix(n, d);
       }
-      v(n, k) = exp(Elogpi(k) + sum1 + sum2);
+      v(n, k) = Elogpi(k) + sum1 + sum2;
     }
   }
   return v;

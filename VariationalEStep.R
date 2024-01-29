@@ -1,5 +1,5 @@
 #Variational E step
-
+library(matrixStats)
 expectStep <- function(X, model){
   #Model should contain all current parameters I assume? parameters alpha, epsilon, labels
   #Add parameter rnk (responsibilities) in this step; this is the first step before maximisation
@@ -17,8 +17,9 @@ expectStep <- function(X, model){
   
   Elogphi <- ElogphiCalc(eps, K, D, N, maxNCat, X)
   
-  rhonk <- rhonkCalc(Elogpi, Elogphi, K, D, N) #calculate rho_nk
-  rnk <- rnkCalc(rhonk, N, K)
+  logrhonk <- logrhonkCalc(Elogpi, Elogphi, K, D, N) #calculate rho_nk
+  lse <- rowLogSumExps(logrhonk)
+  rnk <- rnkCalc(logrhonk, lse, N, K)
   
   labels <- apply(rnk, 1, which.max)
   

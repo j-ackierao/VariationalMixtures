@@ -1,5 +1,5 @@
 #Variational E step - model selection
-
+library(matrixStats)
 expectStepVarSel <- function(X, model){
   #Model should contain all current parameters: parameters alpha, epsilon, c, labels
   #Add parameter rnk (responsibilities) in this step; this is the first step before maximisation
@@ -23,8 +23,9 @@ expectStepVarSel <- function(X, model){
   #array of c_i * Elogphi
   cmatrix <- cmatrixCalc(nullphi, X, c, N, D) #1 - c_i * phi_0ixni
   
-  rhonk <- rhonkCalcVarSel(Elogpi, carray, cmatrix, K, D, N) #calculate rho_nk
-  rnk <- rnkCalc(rhonk, N, K)
+  logrhonk <- rhonkCalcVarSel(Elogpi, carray, cmatrix, K, D, N) #calculate rho_nk
+  lse <- rowLogSumExps(logrhonk)
+  rnk <- rnkCalc(logrhonk, lse, N, K)
   
   #Check this bit! is the k with the highest responsibility the cluster that zn is assigned to?
   

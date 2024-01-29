@@ -1,5 +1,5 @@
 #Variational E step - profile regression w/ categorical response
-
+library(matrixStats)
 expectStepProfCat <- function(X, y, model){
   #Model should contain all current parameters: parameters alpha, epsilon, c, labels
   #Add parameter rnk (responsibilities) in this step; this is the first step before maximisation
@@ -25,9 +25,9 @@ expectStepProfCat <- function(X, y, model){
   #array of c_i * Elogphi
   cmatrix <- cmatrixCalc(nullphi, X, c, N, D)
   
-  rhonk <- rhonkCalcProfCat(Elogpi, Elogtheta, y, carray, cmatrix, K, D, N)
-  
-  rnk <- rnkCalc(rhonk, N, K)
+  logrhonk <- logrhonkCalcProfCat(Elogpi, Elogtheta, y, carray, cmatrix, K, D, N)
+  lse <- rowLogSumExps(logrhonk)
+  rnk <- rnkCalc(logrhonk, lse, N, K)
   
   #Check this bit! is the k with the highest responsibility the cluster that zn is assigned to?
   
