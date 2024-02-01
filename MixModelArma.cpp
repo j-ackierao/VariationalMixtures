@@ -79,6 +79,26 @@ arma::cube epsCalc(double K, double maxNCat, double D, double N, arma::mat prior
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
+arma::cube firstepsCalc(double K, double maxNCat, double D, double N, arma::mat prioreps, arma::mat X, arma::vec clusterInit){
+  arma::cube v(K, maxNCat, D);
+  for (int k = 0; k < K; k++){
+    for (int d = 0; d < D; d++){
+      for (int l = 0; l < maxNCat; l++){
+        double sum = 0; // Sum value
+        for(int n = 0; n < N; n++){
+          if(clusterInit(n) == k + 1 && X(n,d) == l+1){
+            sum += 1;
+          } 
+        }
+        v(k, l, d) = prioreps(d, l) + sum;
+      }
+    }
+  }
+  return v;
+}
+
+// [[Rcpp::depends(RcppArmadillo)]]
+// [[Rcpp::export]]
 arma::mat CpriorepsCalc(arma::cube prioreps, double K, double D, arma::vec nCat){
   arma::mat v(K, D);
   for (int d = 0; d < D; d++){

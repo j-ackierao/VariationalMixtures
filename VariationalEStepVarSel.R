@@ -23,7 +23,7 @@ expectStepVarSel <- function(X, model){
   #array of c_i * Elogphi
   cmatrix <- cmatrixCalc(nullphi, X, c, N, D) #1 - c_i * phi_0ixni
   
-  logrhonk <- rhonkCalcVarSel(Elogpi, carray, cmatrix, K, D, N) #calculate rho_nk
+  logrhonk <- logrhonkCalcVarSel(Elogpi, carray, cmatrix, K, D, N) #calculate rho_nk
   lse <- rowLogSumExps(logrhonk)
   rnk <- rnkCalc(logrhonk, lse, N, K)
   

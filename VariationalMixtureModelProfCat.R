@@ -119,13 +119,7 @@ mixturemodelprofCat <- function(data, outcome, K, alpha, a, maxiter, tol){
   model$nullphi <- nullphi
   
   #######################################
-  for(i in 1:D){
-    for(j in 1:nCat[i]){
-      for(k in 1:K){
-        model$eps[k,j,i] <- prior$eps[i,j] + sum((X[,i]==j)*(clusterInit==k))
-      }
-    }
-  }
+  model$eps <- firstepsCalc(K, maxNCat, D, N, prior$eps, X, clusterInit)
   #Update the epsilons based on the initial cluster assignment, based on how many observations are in each 
   #cluster with a given variable value - breaks symmetries between clusters as all priors are symmetric 
   #Similar to our usual phi (epsilon) update based on initial cluster assignments (rnk = 1 if n is in cluster k)
