@@ -29,9 +29,7 @@ expectStepProfCat <- function(X, y, model){
   lse <- rowLogSumExps(logrhonk)
   rnk <- rnkCalc(logrhonk, lse, N, K)
   
-  #Check this bit! is the k with the highest responsibility the cluster that zn is assigned to?
-  
-  labels <- apply(rnk, 1, which.max)
+  labels <- apply(rnk, 1, which.max) #k with the highest responsibility is the cluster that zn is assigned to
   
   model$rnk <- rnk #update responsibilities in model
   model$labels <- labels #update labels in model

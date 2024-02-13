@@ -33,12 +33,11 @@ check_convergence<- function(ELBO, iter, maxiter, tol){
 
 mixturemodelvarsel <- function(data, K, alpha, a, maxiter, tol){
   ################################################
-  #Process dataset - use inspiration from vimix and mixdir codes
+  #Process dataset
   
   #First make sure X (data) is a data frame and make every column into factors
   X <- as.data.frame(data)
   X[colnames(X)] <- lapply(X[colnames(X)], as.factor)
-  
   
   #Data frame mapping factor labels to numbers
   factor_labels = data.frame()
@@ -49,13 +48,12 @@ mixturemodelvarsel <- function(data, K, alpha, a, maxiter, tol){
   }
   
   #Check for any completely empty factors as these may cause problems
-  categories <- lapply(1:ncol(X), function(j)levels(X[, j])) #list out categories
-  
+  categories <- lapply(1:ncol(X), function(j)levels(X[, j])) 
   cat_lengths <- sapply(categories, length)
   if(any(cat_lengths == 0)) {
-    stop("Column(s) ", paste0(colnames(X)[cat_lengths == 0], collapse = ","), " is empty (i.e. all values are NA). Please fix this.")
+    stop("Column(s) ", paste0(colnames(X)[cat_lengths == 0], collapse = ","), " is empty")
   }
-  #Currently work under assumption there are no missing values? unsure how to deal with this now lol
+  #Currently work under assumption there are no missing values
   
   #Create numeric matrix for data
   X <- data.matrix(X)
@@ -68,22 +66,21 @@ mixturemodelvarsel <- function(data, K, alpha, a, maxiter, tol){
   
   nCat <- as.vector(apply(X, 2, max)) #number of categories in each variable
   maxNCat <- max(nCat)
-  ELBO = Cl = rep(-Inf,maxiter*2) #prepare for L (ELBO) and number of clusters at each iteration to be recorded
+  ELBO = Cl = rep(-Inf,maxiter*2) #record ELBO and no of clusters at each iteration
   
   ########################################
-  #Define priors
-  #Assume there is an input alpha and all variables have a symmetric Dirichlet prior with parameters alpha
+  #Define priors - given input alpha, all variables have a symmetric Dirichlet prior with parameter alpha
   
-  prior = list(alpha = alpha) #default value of alpha - prior for clustering pi
+  prior = list(alpha = alpha) #prior for clustering pi
   prior$eps = matrix(0, D, maxNCat) #prior for clustering phi
   for(d in 1:D){
     prior$eps [d,1:nCat[d]] <- 1/nCat[d]
   }
   prior$a = a
   
-  #Initialising
+  #Initialising cluster labels
   #cluster = sample(1:K, N, replace=T) random assignment!
-  clusterInit <- klaR::kmodes(X, modes = K)$cluster
+  clusterInit <- klaR::kmodes(X, modes = K)$cluster #k modes: analogous to k means
   
   #######################################
   
@@ -100,7 +97,7 @@ mixturemodelvarsel <- function(data, K, alpha, a, maxiter, tol){
   
   #######################################
   
-  #Just setting null phi to the rate of the parameter value in the dataset - max likelihood?
+  #Set null phi to the rate of the parameter value in the dataset - max likelihood
   nullphi <- array(0, dim = c(D, maxNCat))
   for (i in 1:D){
     for (j in 1:nCat[i]){

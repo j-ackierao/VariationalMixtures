@@ -19,7 +19,7 @@ maxStepProfCat <- function(X, y, model, prior){
   nCat <- as.vector(apply(X, 2, max)) #number of categories in each variable
   maxNCat <- max(nCat)
   
-  #Parameters for pi update - Dirichlet (just need to update parameters)
+  #Parameters for pi update - Dirichlet
   alpha <- prioralpha + colSums(rnk)
   
   #Parameters for phi and theta update - Dirichlet
