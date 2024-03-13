@@ -2,8 +2,8 @@ library(klaR)
 library(tidyverse)
 library(Rcpp)
 library(RcppArmadillo)
-source('VariationalEStepProf.R')
-source('VariationalMStepProf.R')
+source('VariationalEStepProfCat.R')
+source('VariationalMStepProfCat.R')
 source('ELBOCalcProf.R')
 
 library(Rcpp)
@@ -40,7 +40,7 @@ mixturemodelprofCat <- function(data, outcome, K, alpha, a, maxiter, tol){
   #Process dataset
   
   #First make sure X (data) is a data frame and make every column into factors
-  X <- as.data.frame(data)
+  X <- as.data.frame(cbind(data, outcome))
   X[colnames(X)] <- lapply(X[colnames(X)], as.factor)
   
   #Data frame mapping factor labels to numbers
@@ -61,10 +61,10 @@ mixturemodelprofCat <- function(data, outcome, K, alpha, a, maxiter, tol){
   
   #Create numeric matrix for data
   X <- data.matrix(X)
+  y <- X[,dim(X)[2]]
+  X <- X[,1:(dim(X)[2] - 1)]
   #note that now eg. binary factors are now 1 and 2 instead of 0 and 1
   
-  y <- as.data.frame(outcome)
-  y <- as.numeric(y[,1])
   ##########################################
   
   N = dim(X)[1]

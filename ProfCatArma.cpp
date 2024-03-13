@@ -129,7 +129,7 @@ arma::cube lognullphiCalc(arma::mat nullphi, arma::mat X, double K, double D, do
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-arma::vec eta1Calc(arma::cube Elogphi, arma::mat rnk, arma::vec Elogdelta, double K, double D, double N){
+arma::vec logeta1Calc(arma::cube Elogphi, arma::mat rnk, arma::vec Elogdelta, double K, double D, double N){
   arma::vec v(D);
   for (int d = 0; d < D; d++){
     double sum = 0; // Sum value
@@ -138,14 +138,14 @@ arma::vec eta1Calc(arma::cube Elogphi, arma::mat rnk, arma::vec Elogdelta, doubl
         sum += Elogphi(k, d, n) * rnk(n, k);
       }
     }
-    v(d) = exp(sum + Elogdelta(d));
+    v(d) = sum + Elogdelta(d);
   }
   return v;
 }
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-arma::vec eta2Calc(arma::cube lognullphi, arma::mat rnk, arma::vec Elogminusdelta, double K, double D, double N){
+arma::vec logeta2Calc(arma::cube lognullphi, arma::mat rnk, arma::vec Elogminusdelta, double K, double D, double N){
   arma::vec v(D);
   for (int d = 0; d < D; d++){
     double sum = 0; // Sum value
@@ -154,20 +154,21 @@ arma::vec eta2Calc(arma::cube lognullphi, arma::mat rnk, arma::vec Elogminusdelt
         sum += lognullphi(n, d, k) * rnk(n, k);
       }
     }
-    v(d) = exp(sum + Elogminusdelta(d));
+    v(d) = sum + Elogminusdelta(d);
   }
   return v;
 }
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-arma::vec cCalc(arma::vec eta1, arma::vec eta2, double D){
+arma::vec cCalc(arma::vec logeta1, arma::vec clse, double D){
   arma::vec v(D);
   for (int d = 0; d < D; d++){
-    v(d) = eta1(d) / (eta1(d) + eta2(d));
+    v(d) = exp(logeta1(d) - clse(d));
   }
   return v;
 }
+
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]

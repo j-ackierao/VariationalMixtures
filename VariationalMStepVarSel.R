@@ -1,5 +1,6 @@
 #Variational M Step
 
+library(matrixStats)
 maxStepVarSel <- function(X, model, prior){
   #Model should contain all current parameters: parameters alpha, epsilon, rnk, labels
   #Need prior in this step as parameters from priors appear in the optimisation equations
@@ -30,11 +31,12 @@ maxStepVarSel <- function(X, model, prior){
   Elogdelta <- digamma(c + a) - digamma(2*a + 1)
   Elogminusdelta <- digamma(1 - c + a) - digamma(2*a + 1)
   
-  eta1 <- as.vector(eta1Calc(Elogphi, rnk, Elogdelta, K, D, N))
-  eta2 <- as.vector(eta2Calc(lognullphi, rnk, Elogminusdelta, K, D, N))
+  logeta1 <- as.vector(logeta1Calc(Elogphi, rnk, Elogdelta, K, D, N))
+  logeta2 <- as.vector(logeta2Calc(lognullphi, rnk, Elogminusdelta, K, D, N))
+  logetas <- matrix(c(logeta1, logeta2), nrow = D, ncol = 2)
   
-  c <- as.vector(cCalc(eta1, eta2, D))
-  c[is.na(c)] <- 0
+  clse <- rowLogSumExps(logetas)
+  c <- as.vector(cCalc(logeta1, clse, D))
   
   model$alpha <- alpha #update alpha* in model
   model$eps <- eps #update epsilon* in model
